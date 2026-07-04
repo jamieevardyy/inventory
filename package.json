@@ -9,7 +9,8 @@
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
     "init-db": "tsx scripts/init-db.ts",
-    "telegram:webhook": "tsx scripts/set-telegram-webhook.ts"
+    "telegram:webhook": "tsx scripts/set-telegram-webhook.ts",
+    "telegram:webhook:info": "tsx scripts/telegram-webhook-info.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",

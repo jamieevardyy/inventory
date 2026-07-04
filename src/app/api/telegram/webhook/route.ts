@@ -1,6 +1,7 @@
 import {
   getAppName,
   getTelegramBotToken,
+  getWebhookSecret,
   sendTelegramMessage,
 } from "@/lib/telegram";
 
@@ -13,11 +14,29 @@ type TelegramUpdate = {
   };
 };
 
+function normalizeHeaderSecret(value: string | null): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  return trimmed;
+}
+
 function commandFrom(text: string | undefined): string | null {
   if (!text) return null;
   const head = text.trim().split(/\s/)[0];
   if (!head?.startsWith("/")) return null;
   return head.split("@")[0].toLowerCase();
+}
+
+/** Quick config check — open in browser after deploy (no secrets exposed). */
+export async function GET() {
+  const secret = getWebhookSecret();
+  return Response.json({
+    ok: Boolean(getTelegramBotToken()),
+    tokenConfigured: Boolean(getTelegramBotToken()),
+    secretConfigured: Boolean(secret),
+    secretLength: secret?.length ?? 0,
+    appName: getAppName(),
+  });
 }
 
 /** Telegram Bot API webhook — responds to /start and /name. */
@@ -27,10 +46,16 @@ export async function POST(req: Request) {
     return new Response("Telegram bot not configured", { status: 503 });
   }
 
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
+  const secret = getWebhookSecret();
   if (secret) {
-    const header = req.headers.get("X-Telegram-Bot-Api-Secret-Token");
+    const header = normalizeHeaderSecret(
+      req.headers.get("X-Telegram-Bot-Api-Secret-Token"),
+    );
     if (header !== secret) {
+      console.error("[telegram/webhook] secret mismatch", {
+        headerLength: header?.length ?? 0,
+        secretLength: secret.length,
+      });
       return new Response("Unauthorized", { status: 401 });
     }
   }

@@ -1,11 +1,28 @@
 const TELEGRAM_API = "https://api.telegram.org";
 
+/** Strip whitespace and optional surrounding quotes (common Vercel copy-paste mistake). */
+export function normalizeEnv(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1).trim() || undefined;
+  }
+  return trimmed;
+}
+
 export function getTelegramBotToken(): string | undefined {
-  return process.env.TELEGRAM_BOT_TOKEN?.trim() || undefined;
+  return normalizeEnv(process.env.TELEGRAM_BOT_TOKEN);
+}
+
+export function getWebhookSecret(): string | undefined {
+  return normalizeEnv(process.env.TELEGRAM_WEBHOOK_SECRET);
 }
 
 export function getAppName(): string {
-  return process.env.APP_NAME?.trim() || "StockAI";
+  return normalizeEnv(process.env.APP_NAME) || "StockAI";
 }
 
 export async function sendTelegramMessage(
