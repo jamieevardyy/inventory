@@ -73,7 +73,7 @@ export default async function DashboardPage() {
           <>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {stat("Total Items", stats.totalItems, Package, "/inventory", "bg-blue-100 text-blue-700")}
-              {stat("Categories", stats.totalCategories, FolderTree, "/categories", "bg-violet-100 text-violet-700")}
+              {stat("Categories", stats.totalCategories, FolderTree, "/masters/categories", "bg-violet-100 text-violet-700")}
               {stat("Low Stock", stats.lowStock, AlertTriangle, "/inventory?stock=low", "bg-amber-100 text-amber-700")}
               {stat("Out of Stock", stats.outOfStock, XCircle, "/inventory?stock=out", "bg-red-100 text-red-700")}
             </div>

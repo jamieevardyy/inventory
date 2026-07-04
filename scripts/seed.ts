@@ -9,12 +9,18 @@ async function main() {
 
   const categories = await Collections.categories();
   const subcategories = await Collections.subcategories();
+  const units = await Collections.units();
+  const locations = await Collections.locations();
+  const suppliers = await Collections.suppliers();
   const items = await Collections.items();
 
   console.log("Clearing existing demo data…");
   await Promise.all([
     categories.deleteMany({}),
     subcategories.deleteMany({}),
+    units.deleteMany({}),
+    locations.deleteMany({}),
+    suppliers.deleteMany({}),
     items.deleteMany({}),
   ]);
 
@@ -48,6 +54,53 @@ async function main() {
       updatedAt: now,
     },
   ] as never);
+
+  await units.insertMany([
+    { name: "Pieces", symbol: "pcs", description: "Individual items", archived: false, createdAt: now, updatedAt: now },
+    { name: "Meters", symbol: "m", description: "Length in meters", archived: false, createdAt: now, updatedAt: now },
+    { name: "Kilograms", symbol: "kg", description: "Weight in kilograms", archived: false, createdAt: now, updatedAt: now },
+  ] as never);
+
+  const wh1 = new ObjectId();
+  const rack1 = new ObjectId();
+  await locations.insertMany([
+    {
+      _id: wh1,
+      name: "WH-1",
+      type: "warehouse",
+      code: "WH-1",
+      parentLocationId: null,
+      isActive: true,
+      archived: false,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      _id: rack1,
+      name: "R1",
+      type: "rack",
+      code: "R1",
+      parentLocationId: wh1,
+      isActive: true,
+      archived: false,
+      createdAt: now,
+      updatedAt: now,
+    },
+  ] as never);
+
+  await suppliers.insertOne({
+    _id: new ObjectId(),
+    name: "ABC Electrical Supplies",
+    phone: "+91 98765 43210",
+    email: "sales@abc-electrical.com",
+    notes: "Primary electrical vendor",
+    categoryIds: [electrical],
+    subcategoryIds: [wires, switches],
+    isActive: true,
+    archived: false,
+    createdAt: now,
+    updatedAt: now,
+  } as never);
 
   const base = {
     description: "",
@@ -107,7 +160,7 @@ async function main() {
     },
   ] as never);
 
-  console.log("✓ Seeded 1 category, 2 subcategories, 3 items.");
+  console.log("✓ Seeded 1 category, 2 subcategories, 3 units, 2 locations, 1 supplier, 3 items.");
   process.exit(0);
 }
 

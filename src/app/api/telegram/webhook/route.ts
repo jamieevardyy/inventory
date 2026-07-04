@@ -52,9 +52,14 @@ export async function POST(req: Request) {
       req.headers.get("X-Telegram-Bot-Api-Secret-Token"),
     );
     if (header !== secret) {
+      const hint =
+        !header && secret
+          ? "Telegram sent no secret header — re-run: npm run telegram:webhook"
+          : "Secret values differ between Telegram registration and Vercel TELEGRAM_WEBHOOK_SECRET";
       console.error("[telegram/webhook] secret mismatch", {
         headerLength: header?.length ?? 0,
         secretLength: secret.length,
+        hint,
       });
       return new Response("Unauthorized", { status: 401 });
     }

@@ -142,7 +142,98 @@ export type Serialized<T> = {
             : T[K];
 };
 
+/** Hierarchical storage location (warehouse → rack → shelf → bin). */
+export interface Location {
+  _id: ObjectId;
+  name: string;
+  type?: string;
+  code?: string;
+  description?: string;
+  parentLocationId: ObjectId | null;
+  isActive: boolean;
+  archived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Supplier / vendor master (maps to Agencies in maintenance tracker). */
+export interface Supplier {
+  _id: ObjectId;
+  name: string;
+  phone: string;
+  email: string;
+  notes: string;
+  categoryIds: ObjectId[];
+  subcategoryIds: ObjectId[];
+  isActive: boolean;
+  archived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Unit of measure master. */
+export interface Unit {
+  _id: ObjectId;
+  name: string;
+  symbol: string;
+  description?: string;
+  archived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type UserRole = "admin" | "staff" | "viewer";
+
+/** Staff / operator master for audit trails. */
+export interface User {
+  _id: ObjectId;
+  name: string;
+  email: string;
+  phone: string;
+  role: UserRole;
+  notes: string;
+  archived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type InformationType = "general" | "note";
+
+/** Reference notes and information log. */
+export interface Information {
+  _id: ObjectId;
+  content: string;
+  type: InformationType;
+  createdBy: string;
+  archived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type NotificationRuleType = "low_stock" | "reorder";
+
+/** Stock alert notification rules. */
+export interface NotificationRule {
+  _id: ObjectId;
+  name: string;
+  type: NotificationRuleType;
+  categoryId: ObjectId | null;
+  subcategoryId: ObjectId | null;
+  threshold: number;
+  notifyEmail: string;
+  active: boolean;
+  archived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type CategoryDTO = Serialized<Category>;
 export type SubcategoryDTO = Serialized<Subcategory>;
+export type LocationDTO = Serialized<Location>;
+export type SupplierDTO = Serialized<Supplier>;
+export type UnitDTO = Serialized<Unit>;
+export type UserDTO = Serialized<User>;
+export type InformationDTO = Serialized<Information>;
+export type NotificationRuleDTO = Serialized<NotificationRule>;
 export type InventoryItemDTO = Serialized<InventoryItem>;
 export type StockMovementDTO = Serialized<StockMovement>;

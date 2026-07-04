@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
-import { Sidebar } from "@/components/layout/sidebar";
+import { Toaster as HotToaster } from "react-hot-toast";
+import { AppShell } from "@/components/layout/app-shell";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,11 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <main className="flex-1 overflow-x-hidden">{children}</main>
-        </div>
+        <AppShell>{children}</AppShell>
         <Toaster richColors position="top-right" />
+        <HotToaster position="top-right" />
       </body>
     </html>
   );

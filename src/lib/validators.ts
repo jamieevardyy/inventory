@@ -102,6 +102,90 @@ export const duplicateCheckSchema = z.object({
   excludeId: z.string().regex(/^[a-f\d]{24}$/i).optional(),
 });
 
+
+const objectIdArray = z
+  .array(z.string().regex(/^[a-f\d]{24}$/i))
+  .default([])
+  .transform((arr) => Array.from(new Set(arr)));
+
+export const locationSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  type: z.string().trim().max(60).optional().default(""),
+  code: z.string().trim().max(60).optional().default(""),
+  description: z.string().trim().max(2000).optional().default(""),
+  parentLocationId: objectId.nullable().optional().default(null),
+  isActive: z.boolean().optional().default(true),
+});
+
+export const locationUpdateSchema = locationSchema.partial().extend({
+  archived: z.boolean().optional(),
+});
+
+export const supplierSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  phone: z.string().trim().max(40).optional().default(""),
+  email: z.string().trim().max(120).optional().default(""),
+  notes: z.string().trim().max(5000).optional().default(""),
+  categoryIds: objectIdArray,
+  subcategoryIds: objectIdArray,
+  isActive: z.boolean().optional().default(true),
+});
+
+export const supplierUpdateSchema = supplierSchema.partial().extend({
+  archived: z.boolean().optional(),
+});
+
+export const unitSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  symbol: z.string().trim().min(1, "Symbol is required").max(20),
+  description: z.string().trim().max(2000).optional().default(""),
+});
+
+export const unitUpdateSchema = unitSchema.partial().extend({
+  archived: z.boolean().optional(),
+});
+
+export const userRoleSchema = z.enum(["admin", "staff", "viewer"]);
+
+export const userSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  email: z.string().trim().max(120).optional().default(""),
+  phone: z.string().trim().max(40).optional().default(""),
+  role: userRoleSchema.optional().default("staff"),
+  notes: z.string().trim().max(5000).optional().default(""),
+});
+
+export const userUpdateSchema = userSchema.partial().extend({
+  archived: z.boolean().optional(),
+});
+
+export const informationTypeSchema = z.enum(["general", "note"]);
+
+export const informationSchema = z.object({
+  content: z.string().trim().min(1, "Content is required").max(10000),
+  type: informationTypeSchema.optional().default("general"),
+});
+
+export const informationUpdateSchema = informationSchema.partial().extend({
+  archived: z.boolean().optional(),
+});
+
+export const notificationRuleTypeSchema = z.enum(["low_stock", "reorder"]);
+
+export const notificationRuleSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  type: notificationRuleTypeSchema,
+  categoryId: objectId.nullable().optional().default(null),
+  subcategoryId: objectId.nullable().optional().default(null),
+  threshold: z.coerce.number().min(0).default(0),
+  notifyEmail: z.string().trim().max(120).optional().default(""),
+  active: z.boolean().optional().default(true),
+});
+
+export const notificationRuleUpdateSchema = notificationRuleSchema.partial().extend({
+  archived: z.boolean().optional(),
+});
+
 export type ItemInput = z.infer<typeof itemSchema>;
 export type CategoryInput = z.infer<typeof categorySchema>;
 export type SubcategoryInput = z.infer<typeof subcategorySchema>;

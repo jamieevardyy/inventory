@@ -2,6 +2,12 @@ import { MongoClient, type Db, type Collection } from "mongodb";
 import type {
   Category,
   Subcategory,
+  Location,
+  Supplier,
+  Unit,
+  User,
+  Information,
+  NotificationRule,
   InventoryItem,
   StockMovement,
 } from "./types";
@@ -46,6 +52,18 @@ export const Collections = {
     (await getDb()).collection<Category>("categories"),
   subcategories: async (): Promise<Collection<Subcategory>> =>
     (await getDb()).collection<Subcategory>("subcategories"),
+  locations: async (): Promise<Collection<Location>> =>
+    (await getDb()).collection<Location>("locations"),
+  suppliers: async (): Promise<Collection<Supplier>> =>
+    (await getDb()).collection<Supplier>("suppliers"),
+  units: async (): Promise<Collection<Unit>> =>
+    (await getDb()).collection<Unit>("units"),
+  users: async (): Promise<Collection<User>> =>
+    (await getDb()).collection<User>("users"),
+  informations: async (): Promise<Collection<Information>> =>
+    (await getDb()).collection<Information>("informations"),
+  notificationRules: async (): Promise<Collection<NotificationRule>> =>
+    (await getDb()).collection<NotificationRule>("notificationRules"),
   items: async (): Promise<Collection<InventoryItem>> =>
     (await getDb()).collection<InventoryItem>("inventoryItems"),
   stockMovements: async (): Promise<Collection<StockMovement>> =>
@@ -98,6 +116,28 @@ export async function ensureIndexes(): Promise<void> {
 
   const subcategories = await Collections.subcategories();
   await subcategories.createIndex({ categoryId: 1 });
+
+  const locations = await Collections.locations();
+  await locations.createIndexes([
+    { key: { parentLocationId: 1 } },
+    { key: { name: 1 } },
+    { key: { archived: 1 } },
+  ]);
+
+  const suppliers = await Collections.suppliers();
+  await suppliers.createIndexes([{ key: { name: 1 } }, { key: { archived: 1 } }]);
+
+  const units = await Collections.units();
+  await units.createIndexes([{ key: { symbol: 1 } }, { key: { archived: 1 } }]);
+
+  const users = await Collections.users();
+  await users.createIndexes([{ key: { name: 1 } }, { key: { archived: 1 } }]);
+
+  const informations = await Collections.informations();
+  await informations.createIndex({ createdAt: -1 });
+
+  const notificationRules = await Collections.notificationRules();
+  await notificationRules.createIndex({ active: 1 });
 
   const movements = await Collections.stockMovements();
   await movements.createIndexes([

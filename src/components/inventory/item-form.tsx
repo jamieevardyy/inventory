@@ -30,6 +30,7 @@ import { DuplicateDialog, type DuplicateHit } from "./duplicate-dialog";
 import type {
   CategoryDTO,
   SubcategoryDTO,
+  UnitDTO,
   InventoryItemDTO,
   ProductImage,
   AiSuggestion,
@@ -91,6 +92,7 @@ export function ItemForm({
   const [form, setForm] = React.useState<FormState>(() => fromDTO(item));
   const [categories, setCategories] = React.useState<CategoryDTO[]>([]);
   const [subcategories, setSubcategories] = React.useState<SubcategoryDTO[]>([]);
+  const [units, setUnits] = React.useState<UnitDTO[]>([]);
   const [saving, setSaving] = React.useState(false);
   const [duplicates, setDuplicates] = React.useState<DuplicateHit[]>([]);
   const [showDup, setShowDup] = React.useState(false);
@@ -114,6 +116,7 @@ export function ItemForm({
   React.useEffect(() => {
     api<CategoryDTO[]>("/api/categories").then(setCategories).catch(() => {});
     api<SubcategoryDTO[]>("/api/subcategories").then(setSubcategories).catch(() => {});
+    api<UnitDTO[]>("/api/units").then(setUnits).catch(() => {});
   }, []);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
@@ -527,7 +530,22 @@ export function ItemForm({
               <NumberField label="Quantity" value={form.quantity} onChange={(v) => set("quantity", v)} />
               <div className="space-y-1.5">
                 <Label htmlFor="unit">Unit</Label>
-                <Input id="unit" value={form.unit} onChange={(e) => set("unit", e.target.value)} placeholder="pcs, m, kg" />
+                {units.length > 0 ? (
+                  <Select value={form.unit} onValueChange={(v) => set("unit", v)}>
+                    <SelectTrigger id="unit">
+                      <SelectValue placeholder="Select unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {units.map((u) => (
+                        <SelectItem key={u._id} value={u.symbol}>
+                          {u.name} ({u.symbol})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input id="unit" value={form.unit} onChange={(e) => set("unit", e.target.value)} placeholder="pcs, m, kg" />
+                )}
               </div>
               <NumberField label="Minimum Qty" value={form.minimumQuantity} onChange={(v) => set("minimumQuantity", v)} />
               <NumberField label="Reorder Qty" value={form.reorderQuantity} onChange={(v) => set("reorderQuantity", v)} />
