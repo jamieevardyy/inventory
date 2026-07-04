@@ -13,7 +13,14 @@ type TelegramUpdate = {
   };
 };
 
-/** Telegram Bot API webhook — responds to /name with the app name. */
+function commandFrom(text: string | undefined): string | null {
+  if (!text) return null;
+  const head = text.trim().split(/\s/)[0];
+  if (!head?.startsWith("/")) return null;
+  return head.split("@")[0].toLowerCase();
+}
+
+/** Telegram Bot API webhook — responds to /start and /name. */
 export async function POST(req: Request) {
   const token = getTelegramBotToken();
   if (!token) {
@@ -35,12 +42,24 @@ export async function POST(req: Request) {
     return new Response("Bad Request", { status: 400 });
   }
 
-  const text = update.message?.text?.trim();
+  const text = update.message?.text;
   const chatId = update.message?.chat.id;
+  const command = commandFrom(text);
 
-  if (chatId && text?.startsWith("/name")) {
+  if (!chatId || !command) {
+    return new Response("OK", { status: 200 });
+  }
+
+  let reply: string | null = null;
+  if (command === "/start") {
+    reply = `Hi! I'm the ${getAppName()} bot.\n\nTry /name to see the app name.`;
+  } else if (command === "/name") {
+    reply = getAppName();
+  }
+
+  if (reply) {
     try {
-      await sendTelegramMessage(token, chatId, getAppName());
+      await sendTelegramMessage(token, chatId, reply);
     } catch (err) {
       console.error("[telegram/webhook] sendMessage failed:", err);
     }
